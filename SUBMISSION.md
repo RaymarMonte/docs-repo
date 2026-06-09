@@ -8,12 +8,12 @@ take-home.
 | | |
 |---|---|
 | **Live URL** | https://docs-repo-omega.vercel.app |
-| **Repository** | _<this repo>_ |
+| **Repository** | https://github.com/RaymarMonte/docs-repo |
 | **Demo video** | https://drive.google.com/file/d/1oPAR5pcdf2rqFAR3_7BhWcfXuLc-Qz9F/view?usp=drive_link |
-| **README / setup** | [README.md](./README.md) |
-| **Architecture note** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
-| **AI-workflow note** | [docs/AI-WORKFLOW.md](./docs/AI-WORKFLOW.md) |
-| **Build plan (locked spec)** | [docs/PLAN.md](./docs/PLAN.md) |
+| **README / setup** | [README.md](https://github.com/RaymarMonte/docs-repo/blob/main/README.md) |
+| **Architecture note** | [docs/ARCHITECTURE.md](https://github.com/RaymarMonte/docs-repo/blob/main/docs/ARCHITECTURE.md) |
+| **AI-workflow note** | [docs/AI-WORKFLOW.md](https://github.com/RaymarMonte/docs-repo/blob/main/docs/AI-WORKFLOW.md) |
+| **Build plan (locked spec)** | [docs/PLAN.md](https://github.com/RaymarMonte/docs-repo/blob/main/docs/PLAN.md) |
 
 ## What it does
 
@@ -36,7 +36,7 @@ take-home.
 4. B: find it under **Shared with me**; confirm edit can write and view cannot.
 
 Full reviewer walkthrough and the "confirm email = off" note are in the
-[README](./README.md).
+[README](https://github.com/RaymarMonte/docs-repo/blob/main/README.md).
 
 ## Tech stack
 
@@ -49,7 +49,7 @@ deployed on Vercel.
 - **Database-enforced authorization.** Split per-operation RLS policies; the view/edit
   distinction lives only in the `documents` UPDATE policy, so a forgotten code check
   can't leak write access. A `security definer` helper breaks the
-  `documents`↔`document_shares` recursion. See [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+  `documents`↔`document_shares` recursion. See [ARCHITECTURE.md](https://github.com/RaymarMonte/docs-repo/blob/main/docs/ARCHITECTURE.md).
 - **Verified against a live database with two real accounts**, not just a green build —
   this is how the RLS edit/view/unshare paths were confirmed.
 - **AI-native process**: plan-first + locked contracts + parallel subagents for
@@ -65,6 +65,7 @@ presence indicators, PDF export, and replacing the public read with a lookup RPC
 
 ## Status
 
-All build blocks complete and verified live except **deploy** (Vercel + Supabase
-redirect URLs) and the **demo video**, which require manual sign-in steps. See
-[docs/PROGRESS.md](./docs/PROGRESS.md) for the block-by-block record.
+Complete. All build blocks are done and verified live, including deployment (Vercel +
+Supabase) and the demo video — both linked above. See
+[docs/PROGRESS.md](https://github.com/RaymarMonte/docs-repo/blob/main/docs/PROGRESS.md)
+for the block-by-block record.
