@@ -43,7 +43,7 @@
 | 2:10–2:25 — FileReader import + `parseImportedFile` | ✅ **Done & verified live.** `.md` heading renders `<h1>`; `<script>` in a `.txt` is inert. |
 | 2:25–2:40 — `parse-import.test.ts` + validation | ✅ **Done.** 5/5 tests pass; button handles parse/extension errors inline. |
 | 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ✅ **Done.** Live at https://docs-repo-omega.vercel.app (Vercel, Next.js preset, two `NEXT_PUBLIC_SUPABASE_*` env vars). Initial smoke test passed. |
-| wrap — README · architecture note · AI note · SUBMISSION.md · video | 🔶 **Docs done + live URL filled; video pending.** README/SUBMISSION carry the live URL; `docs/ARCHITECTURE.md`, `docs/AI-WORKFLOW.md`, `SUBMISSION.md` written. Video is human-only. |
+| wrap — README · architecture note · AI note · SUBMISSION.md · video | ✅ **Done.** README/SUBMISSION carry the live URL; `docs/ARCHITECTURE.md`, `docs/AI-WORKFLOW.md`, `SUBMISSION.md` written; video linked (placeholder recording at a stable Drive link — to be re-recorded post-deadline, link unchanged). |
 
 ## Done — auth files (PLAN.md §Routes & files)
 

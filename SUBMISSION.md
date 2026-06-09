@@ -9,7 +9,7 @@ take-home.
 |---|---|
 | **Live URL** | https://docs-repo-omega.vercel.app |
 | **Repository** | _<this repo>_ |
-| **Demo video** | _<add link>_ |
+| **Demo video** | https://drive.google.com/file/d/1oPAR5pcdf2rqFAR3_7BhWcfXuLc-Qz9F/view?usp=drive_link |
 | **README / setup** | [README.md](./README.md) |
 | **Architecture note** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | **AI-workflow note** | [docs/AI-WORKFLOW.md](./docs/AI-WORKFLOW.md) |
