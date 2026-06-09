@@ -13,11 +13,9 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.81",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@uiw/react-md-editor": "^4.1.1",
-    "ai": "^6.0.197",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",

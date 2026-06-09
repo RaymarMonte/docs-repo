@@ -19,7 +19,6 @@ clean, conventional starting point with the stack wired up.
 - **Tailwind CSS v4** + **shadcn/ui** (radix primitives, "nova" preset). Components
   live in `src/components/ui`; the `cn()` helper is in `src/lib/utils.ts`.
 - **Supabase** (`@supabase/ssr`) — database + auth.
-- **Vercel AI SDK** (`ai` + `@ai-sdk/anthropic`).
 - **@uiw/react-md-editor** — markdown editing (client-only).
 - **Vitest** + **Testing Library** — unit/component tests.
 - **Deploy:** Vercel.
