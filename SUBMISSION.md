@@ -7,7 +7,7 @@ take-home.
 
 | | |
 |---|---|
-| **Live URL** | _<add after deploy>_ |
+| **Live URL** | https://docs-repo-omega.vercel.app |
 | **Repository** | _<this repo>_ |
 | **Demo video** | _<add link>_ |
 | **README / setup** | [README.md](./README.md) |

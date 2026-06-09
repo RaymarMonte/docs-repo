@@ -6,7 +6,7 @@ documents by email with view or edit permissions — split into a clear **Owned*
 **Shared with me** dashboard. Built with Next.js 16 (App Router), React 19, Supabase
 (Postgres + Auth + Row-Level Security), Tailwind v4 + shadcn/ui, and Vitest.
 
-**Live URL:** _<add after deploy>_ · **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · **AI workflow:** [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md)
+**Live URL:** https://docs-repo-omega.vercel.app · **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · **AI workflow:** [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md)
 
 ## Features
 

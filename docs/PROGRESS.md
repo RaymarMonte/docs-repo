@@ -42,8 +42,8 @@
 | 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | ✅ **Done & verified live (2 accounts).** Share view/edit, edit-share saves + owner sees changes, owner shares-list + unshare all confirmed. One bug found & fixed in verify (shares-list embed → two-step read). |
 | 2:10–2:25 — FileReader import + `parseImportedFile` | ✅ **Done & verified live.** `.md` heading renders `<h1>`; `<script>` in a `.txt` is inert. |
 | 2:25–2:40 — `parse-import.test.ts` + validation | ✅ **Done.** 5/5 tests pass; button handles parse/extension errors inline. |
-| 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ⬜ **Needs human** (Vercel auth + env vars + Supabase redirect URLs). Steps in README §Deployment. Build is green (`pnpm build` exit 0). |
-| wrap — README · architecture note · AI note · SUBMISSION.md · video | 🔶 **Docs done; video pending.** README rewritten; `docs/ARCHITECTURE.md`, `docs/AI-WORKFLOW.md`, `SUBMISSION.md` written. Video is human-only. Live-URL placeholders to fill post-deploy. |
+| 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ✅ **Done.** Live at https://docs-repo-omega.vercel.app (Vercel, Next.js preset, two `NEXT_PUBLIC_SUPABASE_*` env vars). Initial smoke test passed. |
+| wrap — README · architecture note · AI note · SUBMISSION.md · video | 🔶 **Docs done + live URL filled; video pending.** README/SUBMISSION carry the live URL; `docs/ARCHITECTURE.md`, `docs/AI-WORKFLOW.md`, `SUBMISSION.md` written. Video is human-only. |
 
 ## Done — auth files (PLAN.md §Routes & files)
 
