@@ -1,4 +1,4 @@
--- 0001_init.sql — PreAjaia initial schema
+-- 0001_init.sql — docs-repo initial schema
 -- Run in the Supabase SQL editor (or via the Supabase CLI).
 -- Covers: profiles + documents + document_shares, the new-user trigger that
 -- populates profiles (so share-by-email works), a non-recursive RLS helper,

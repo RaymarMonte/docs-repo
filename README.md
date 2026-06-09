@@ -1,4 +1,4 @@
-# PreAjaia
+# docs-repo
 
 Full-stack web app built with Next.js 16 (App Router), Supabase, Tailwind + shadcn/ui,
 the Vercel AI SDK, and Vitest.

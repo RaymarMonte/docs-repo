@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 <!-- END:nextjs-agent-rules -->
 
-# PreAjaia
+# docs-repo
 
 A full-stack web application. The product scope is still open — this repo is a
 clean, conventional starting point with the stack wired up.

@@ -1,4 +1,4 @@
-# PreAjaia — Build Plan (Assessment)
+# docs-repo — Build Plan (Assessment)
 
 > **For future sessions:** This is the locked execution plan for a timed (~3h core)
 > AI-native take-home: build a lightweight Google-Docs-style collaborative editor.
