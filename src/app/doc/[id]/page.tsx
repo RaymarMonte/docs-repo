@@ -4,17 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Editor } from "@/components/editor";
 import { ShareDialog } from "@/components/share-dialog";
 
-// The `document_shares` ↔ `profiles` nested relation can arrive as an object or a
-// single-element array depending on how PostgREST resolves the embed; normalize.
-interface ShareRow {
-  shared_with: string;
-  permission: string;
-  profiles:
-    | { email: string | null }
-    | { email: string | null }[]
-    | null;
-}
-
 /**
  * Document editor route (RSC). Fetches the doc on the server and hands it to the
  * client `<Editor>`.
@@ -51,22 +40,38 @@ export default async function DocPage(props: PageProps<"/doc/[id]">) {
   if (isOwner) {
     // Owner-only: list current recipients to manage in the share dialog. The
     // `document_shares` SELECT policy lets the owner read these via
-    // `is_document_owner`; `profiles` is publicly readable for the email.
+    // `is_document_owner`.
+    //
+    // Two-step read (NOT a `profiles(email)` embed): `document_shares.shared_with`
+    // and `profiles.id` both FK to `auth.users(id)`, with no direct FK between the
+    // two tables, so PostgREST can't resolve an embed and the query errors out to
+    // an empty list. Fetch the shares, then resolve emails from the public
+    // `profiles` table in a second query and join in memory.
     const { data: shareRows } = await supabase
       .from("document_shares")
-      .select("shared_with, permission, profiles(email)")
+      .select("shared_with, permission")
       .eq("document_id", id);
 
-    shares = ((shareRows ?? []) as ShareRow[]).map((row) => {
-      const profile = Array.isArray(row.profiles)
-        ? row.profiles[0]
-        : row.profiles;
-      return {
-        userId: row.shared_with,
-        email: profile?.email ?? "(unknown)",
-        permission: row.permission,
-      };
-    });
+    const rows = shareRows ?? [];
+    if (rows.length > 0) {
+      const { data: profileRows } = await supabase
+        .from("profiles")
+        .select("id, email")
+        .in(
+          "id",
+          rows.map((r) => r.shared_with),
+        );
+
+      const emailById = new Map(
+        (profileRows ?? []).map((p) => [p.id, p.email]),
+      );
+
+      shares = rows.map((r) => ({
+        userId: r.shared_with,
+        email: emailById.get(r.shared_with) ?? "(unknown)",
+        permission: r.permission,
+      }));
+    }
   } else {
     const { data: myShare } = await supabase
       .from("document_shares")
