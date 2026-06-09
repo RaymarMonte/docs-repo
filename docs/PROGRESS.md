@@ -39,7 +39,7 @@
 | 0:00–0:20 — Read Next 16 docs + migration | ✅ **Done.** Docs read (cheatsheet); migration applied & verified. |
 | 0:20–0:50 — Auth signup/login page; verify trigger populates `profiles` | ✅ **Done** (`5ec566d`). Signup/login/logout + trigger verified against a real account. |
 | 0:50–1:40 — Dashboard (Owned/Shared) + Tiptap editor + create/rename/autosave + beforeunload & flush-on-unmount | ✅ **Done.** All files landed; `pnpm build` clean; **slice verified live** (signup→create→type→autosave "Saved"→reload persists→rename persists→listed under Owned). Two bugs found & fixed in verify: duplicate Underline ext removed; editor body styled via `.ProseMirror` CSS (typography plugin doesn't resolve under pnpm+TW4). |
-| 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | ⬜ Not started. (Closes the auth-path RLS check above.) |
+| 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | 🟡 **Code done; build clean.** `shares.ts` + `share-dialog.tsx` + doc-page wiring landed. **2-account RLS verify still pending** (interactive — see checklist below). |
 | 2:10–2:25 — FileReader import + `parseImportedFile` | ⬜ Not started. |
 | 2:25–2:40 — `parse-import.test.ts` + validation | ⬜ Not started. |
 | 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ⬜ Not started. |
@@ -93,6 +93,42 @@ control on the dashboard when convenient; it's a small follow-up, not a gap.
 Confirmed via live `pnpm dev` + a real signup account and the server-action log.
 **This also closes the first real exercise of the `documents` INSERT/UPDATE RLS
 paths** (owner create + owner save both succeeded).
+
+## Done — `1:40–2:10` share-by-email block (code)
+
+✅ `pnpm build` clean; `tsc` + `lint` clean (same one pre-existing `route.ts` warning).
+
+**Landed (Opus, RLS-critical):**
+- ✅ `src/actions/shares.ts` — `shareDocument(docId, email, permission)` /
+  `unshareDocument(docId, userId)`. Resolves recipient via public `profiles`
+  read (`ilike` email), rejects empty/invalid-permission/self-share with clear
+  messages. ⚠️ **Delete-then-insert, NOT upsert** — `document_shares` has no
+  UPDATE policy (only SELECT/INSERT/DELETE), so an upsert's ON CONFLICT DO UPDATE
+  path would 42501. Delete-then-insert stays on owner-allowed paths and supports
+  re-sharing at a new permission level. Returns `{ error } | { ok: true }`.
+- ✅ `src/app/doc/[id]/page.tsx` — widened `canEdit` to
+  `owner || my-share.permission === 'edit'`; owner-only fetch of recipients
+  (`document_shares` + nested `profiles(email)`, normalized) passed to the dialog;
+  `<ShareDialog>` rendered in the header **for the owner only**.
+
+**Landed (Sonnet subagent, pure UI):**
+- ✅ `src/components/share-dialog.tsx` — `"use client"` dialog: email + view/edit
+  native `<select>` (default edit), `useTransition` + `router.refresh()` to pull
+  revalidated props, inline success/error, per-recipient unshare (X) buttons.
+- ✅ `src/components/ui/dialog.tsx` — shadcn nova dialog primitive, hand-written to
+  match the repo's unified `radix-ui` import convention (the `shadcn add` CLI
+  prompted to overwrite `button.tsx`, so it was bypassed). No new npm dep —
+  `radix-ui` was already present.
+
+**⬜ 2-account RLS verify (do next — interactive):**
+1. Account **A** creates a doc, shares with **B** as **view**.
+2. **B** dashboard → doc appears under "Shared with me"; opens read-only (toolbar
+   hidden, title disabled); editing/save is blocked by the UPDATE policy.
+3. **A** re-shares **B** as **edit** → B can type, autosave shows "Saved", reload
+   persists. (Confirms the `documents` UPDATE edit-share path + delete-then-insert.)
+4. **B** cannot see A's *other* (un-shared) docs (SELECT policy).
+5. **B** sees no Share button on the doc (owner-gated UI) and cannot share.
+6. **A** unshares **B** → doc disappears from B's dashboard.
 
 ## Dependencies
 
