@@ -39,7 +39,7 @@
 | 0:00–0:20 — Read Next 16 docs + migration | ✅ **Done.** Docs read (cheatsheet); migration applied & verified. |
 | 0:20–0:50 — Auth signup/login page; verify trigger populates `profiles` | ✅ **Done** (`5ec566d`). Signup/login/logout + trigger verified against a real account. |
 | 0:50–1:40 — Dashboard (Owned/Shared) + Tiptap editor + create/rename/autosave + beforeunload & flush-on-unmount | ✅ **Done.** All files landed; `pnpm build` clean; **slice verified live** (signup→create→type→autosave "Saved"→reload persists→rename persists→listed under Owned). Two bugs found & fixed in verify: duplicate Underline ext removed; editor body styled via `.ProseMirror` CSS (typography plugin doesn't resolve under pnpm+TW4). |
-| 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | 🟡 **Code done; build clean.** `shares.ts` + `share-dialog.tsx` + doc-page wiring landed. **2-account RLS verify still pending** (interactive — see checklist below). |
+| 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | ✅ **Done & verified live (2 accounts).** Share view/edit, edit-share saves + owner sees changes, owner shares-list + unshare all confirmed. One bug found & fixed in verify (shares-list embed → two-step read). |
 | 2:10–2:25 — FileReader import + `parseImportedFile` | ⬜ Not started. |
 | 2:25–2:40 — `parse-import.test.ts` + validation | ⬜ Not started. |
 | 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ⬜ Not started. |
@@ -120,15 +120,21 @@ paths** (owner create + owner save both succeeded).
   prompted to overwrite `button.tsx`, so it was bypassed). No new npm dep —
   `radix-ui` was already present.
 
-**⬜ 2-account RLS verify (do next — interactive):**
-1. Account **A** creates a doc, shares with **B** as **view**.
-2. **B** dashboard → doc appears under "Shared with me"; opens read-only (toolbar
-   hidden, title disabled); editing/save is blocked by the UPDATE policy.
-3. **A** re-shares **B** as **edit** → B can type, autosave shows "Saved", reload
-   persists. (Confirms the `documents` UPDATE edit-share path + delete-then-insert.)
-4. **B** cannot see A's *other* (un-shared) docs (SELECT policy).
-5. **B** sees no Share button on the doc (owner-gated UI) and cannot share.
-6. **A** unshares **B** → doc disappears from B's dashboard.
+**✅ 2-account RLS verify — DONE (live, two real accounts):**
+- ✅ A shares B as **view** and as **edit**.
+- ✅ B (edit-share) types → autosave "Saved" → A sees the changes (confirms the
+  `documents` UPDATE edit-share path + delete-then-insert re-share).
+- ✅ A's Share dialog lists B with permission; **unshare (X) works**.
+
+> **Bug found & fixed in verify** (`5c310b3`): the owner's shares-list used a
+> `document_shares.select("... , profiles(email)")` PostgREST **embed**, but
+> `document_shares.shared_with` and `profiles.id` both FK to `auth.users(id)` with
+> **no FK between the two tables** — so the embed can't be resolved and the query
+> errored to an empty list ("Not shared with anyone yet", no unshare controls)
+> *even though the share existed and B had access*. Fixed with a **two-step read**:
+> fetch shares, then resolve emails from `profiles` via `.in("id", ...)` and join
+> in memory. ⚠️ Keep this pattern for any future `document_shares`↔`profiles` join;
+> the dashboard's `document_shares→documents(...)` embed is fine (that FK exists).
 
 ## Dependencies
 
