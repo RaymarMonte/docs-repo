@@ -80,7 +80,7 @@ overridden.
 
 - **Editor choice.** AI defaults to `react-md-editor` for text apps, which feels like a
   dev tool and fails the "Google Docs" product prompt. **Fix:** **Tiptap** (starter-kit
-  + underline) for true WYSIWYG.
+  \+ underline) for true WYSIWYG.
 - **File-upload architecture.** AI immediately suggested provisioning S3 / Supabase
   Storage buckets for imports — massive latency, async state, overhead. **Fix:** native
   browser `FileReader` client-side, piping text straight into a Server Action.
