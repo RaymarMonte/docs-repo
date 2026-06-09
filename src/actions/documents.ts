@@ -43,6 +43,38 @@ export async function createDocument(): Promise<void> {
 }
 
 /**
+ * Create a document from an imported file (PLAN.md §4). Same shape as
+ * `createDocument` — sets `owner_id` explicitly (INSERT policy `WITH CHECK
+ * owner_id = auth.uid()`) and redirects into the new doc — but carries the parsed
+ * title + sanitized HTML. Kept separate from `createDocument` so the dashboard's
+ * zero-arg form action stays intact. `redirect()` throws NEXT_REDIRECT, so it
+ * stays OUTSIDE any try/catch.
+ */
+export async function importDocument(
+  title: string,
+  html: string,
+): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data, error } = await supabase
+    .from("documents")
+    .insert({ owner_id: user.id, title: title.trim() || "Untitled", content: html })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Could not import document.");
+  }
+
+  revalidatePath("/", "layout");
+  redirect(`/doc/${data.id}`);
+}
+
+/**
  * Rename a document. Autosaved (debounced) from the editor title field, so it
  * revalidates the dashboard where the title is shown.
  */

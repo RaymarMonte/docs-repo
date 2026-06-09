@@ -40,8 +40,8 @@
 | 0:20–0:50 — Auth signup/login page; verify trigger populates `profiles` | ✅ **Done** (`5ec566d`). Signup/login/logout + trigger verified against a real account. |
 | 0:50–1:40 — Dashboard (Owned/Shared) + Tiptap editor + create/rename/autosave + beforeunload & flush-on-unmount | ✅ **Done.** All files landed; `pnpm build` clean; **slice verified live** (signup→create→type→autosave "Saved"→reload persists→rename persists→listed under Owned). Two bugs found & fixed in verify: duplicate Underline ext removed; editor body styled via `.ProseMirror` CSS (typography plugin doesn't resolve under pnpm+TW4). |
 | 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | ✅ **Done & verified live (2 accounts).** Share view/edit, edit-share saves + owner sees changes, owner shares-list + unshare all confirmed. One bug found & fixed in verify (shares-list embed → two-step read). |
-| 2:10–2:25 — FileReader import + `parseImportedFile` | ⬜ Not started. |
-| 2:25–2:40 — `parse-import.test.ts` + validation | ⬜ Not started. |
+| 2:10–2:25 — FileReader import + `parseImportedFile` | ✅ **Done & verified live.** `.md` heading renders `<h1>`; `<script>` in a `.txt` is inert. |
+| 2:25–2:40 — `parse-import.test.ts` + validation | ✅ **Done.** 5/5 tests pass; button handles parse/extension errors inline. |
 | 2:40–3:00 — Deploy (Vercel + Supabase prod) + smoke test | ⬜ Not started. |
 | wrap — README · architecture note · AI note · SUBMISSION.md · video | ⬜ Not started. |
 
@@ -136,10 +136,40 @@ paths** (owner create + owner save both succeeded).
 > in memory. ⚠️ Keep this pattern for any future `document_shares`↔`profiles` join;
 > the dashboard's `document_shares→documents(...)` embed is fine (that FK exists).
 
+## Done — `2:10–2:40` import block (code + test)
+
+✅ `pnpm test:run` 5/5 · `pnpm build` clean · `tsc` + `lint` clean (same one
+pre-existing `route.ts` warning).
+
+**Landed (Opus — pure fn + RLS insert):**
+- ✅ `src/lib/parse-import.ts` — `parseImportedFile(name, content) → { title, html }`.
+  `.md` → `marked.parse(..., { async: false })` (forced sync so the fn stays pure
+  and testable). `.txt` → HTML-escape each non-empty line, wrap in `<p>`. **Both
+  paths end in `DOMPurify.sanitize`** (isomorphic-dompurify — runs in browser + jsdom
+  unchanged). Title derived from filename, extension stripped, `"Untitled"` fallback.
+  Throws on any non-`.md`/`.txt` extension.
+- ✅ `src/actions/documents.ts` — added `importDocument(title, html)`: sibling of
+  `createDocument` (sets `owner_id` for the INSERT policy, `revalidatePath`,
+  `redirect` outside try/catch). Kept separate so the dashboard's zero-arg
+  `createDocument` form action is untouched.
+
+**Landed (Sonnet subagents, in parallel against the locked signatures):**
+- ✅ `src/components/import-button.tsx` — `"use client"`; hidden
+  `<input accept=".txt,.md">` + `<Button variant="outline">` ("Import" / "Importing…").
+  FileReader → `parseImportedFile` → `importDocument` in `useTransition`. Parse/extension
+  errors shown inline (`text-destructive`); resets input value so re-picking the same
+  file re-fires. Wired into `src/app/page.tsx` header (between New document / Sign out).
+- ✅ `src/lib/parse-import.test.ts` — the meaningful unit test (PLAN §6): `# H` → `<h1>`;
+  `<script>` in a `.txt` does not survive; title-from-filename; unsupported ext throws.
+
+**✅ Live verify — DONE:** imported a real `.md` with a heading → opened as a doc
+rendering `<h1>`; imported a `.txt` containing `<script>` → text is inert, no
+execution. (Throwaway fixtures used for this were not committed.)
+
 ## Dependencies
 
 ✅ Installed: `@tiptap/react @tiptap/starter-kit marked isomorphic-dompurify`
-(`marked`/`isomorphic-dompurify` unused until the import block).
+(`marked` + `isomorphic-dompurify` now **in use** by `src/lib/parse-import.ts`).
 ✅ shadcn `input` + `label` (auth block). `button` + `card` pre-existed.
 ❌ Removed: `@tiptap/extension-underline` (StarterKit bundles Underline — duplicate).
 

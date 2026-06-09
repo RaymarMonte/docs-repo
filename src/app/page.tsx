@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createDocument } from "@/actions/documents";
 import { signOut } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import { ImportButton } from "@/components/import-button";
 import {
   Card,
   CardHeader,
@@ -108,6 +109,7 @@ export default async function DashboardPage() {
             <form action={createDocument}>
               <Button type="submit">New document</Button>
             </form>
+            <ImportButton />
             <form action={signOut}>
               <Button variant="ghost" type="submit">
                 Sign out
