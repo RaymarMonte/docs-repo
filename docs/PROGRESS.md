@@ -38,7 +38,7 @@
 |---|---|
 | 0:00–0:20 — Read Next 16 docs + migration | ✅ **Done.** Docs read (cheatsheet); migration applied & verified. |
 | 0:20–0:50 — Auth signup/login page; verify trigger populates `profiles` | ✅ **Done** (`5ec566d`). Signup/login/logout + trigger verified against a real account. |
-| 0:50–1:40 — Dashboard (Owned/Shared) + Tiptap editor + create/rename/autosave + beforeunload & flush-on-unmount | ⬜ **Next up.** |
+| 0:50–1:40 — Dashboard (Owned/Shared) + Tiptap editor + create/rename/autosave + beforeunload & flush-on-unmount | ✅ **Done.** All files landed; `pnpm build` clean; **slice verified live** (signup→create→type→autosave "Saved"→reload persists→rename persists→listed under Owned). Two bugs found & fixed in verify: duplicate Underline ext removed; editor body styled via `.ProseMirror` CSS (typography plugin doesn't resolve under pnpm+TW4). |
 | 1:40–2:10 — Share-by-email action + dialog; verify RLS as 2nd account | ⬜ Not started. (Closes the auth-path RLS check above.) |
 | 2:10–2:25 — FileReader import + `parseImportedFile` | ⬜ Not started. |
 | 2:25–2:40 — `parse-import.test.ts` + validation | ⬜ Not started. |
@@ -57,26 +57,55 @@ Shipped in `5ec566d`:
 - `src/app/login/page.tsx` — RSC; redirects already-logged-in users to `/`.
 - `src/components/ui/{input,label}.tsx` — added via shadcn.
 
-## Next up — `0:50–1:40` dashboard + editor block
+## Done — `0:50–1:40` dashboard + editor block
 
-Files to create (PLAN.md §Routes & files):
-- `src/app/page.tsx` — **rebuild** the placeholder into the dashboard RSC. Guard:
-  `getUser()` → `redirect("/login")` if absent. Split into **Owned** (`owner_id = me`)
-  and **Shared with me** (join `document_shares`). Add a sign-out control here
-  (wire to the existing `signOut` action) and a "New document" button (→ `createDocument`).
-- `src/app/doc/[id]/page.tsx` — RSC: fetch the doc, pass to the client editor.
-  Remember `params` is a Promise in Next 16 (`await props.params`).
-- `src/components/editor.tsx` — `"use client"` Tiptap (StarterKit + Underline),
-  toolbar, debounced autosave (~800ms) → `saveDocument`, `beforeunload` guard +
-  flush-on-unmount. Dynamic-import with `ssr:false`, `immediatelyRender:false`.
-- `src/actions/documents.ts` — `createDocument` / `renameDocument` / `saveDocument`
-  / `deleteDocument`.
+✅ **Slice verified live** end-to-end and committed. Files below.
+
+**Note for next session:** `deleteDocument` action exists but is **not wired to any
+UI** — this was out of the block's scope (create/rename/autosave only). Wire a delete
+control on the dashboard when convenient; it's a small follow-up, not a gap.
+
+**Landed (Opus, typecheck clean):**
+- ✅ `src/actions/documents.ts` — `createDocument` (sets `owner_id`, redirects to
+  `/doc/[id]`) / `renameDocument` / `saveDocument` (no revalidate — autosave hot
+  path) / `deleteDocument`. Authorization left to RLS; no owner check in
+  `saveDocument` so edit-shares keep working.
+- ✅ `src/components/editor.tsx` — `"use client"` Tiptap (**StarterKit only — it
+  already bundles Underline**, so a separate `@tiptap/extension-underline` was a
+  duplicate and is removed), `immediatelyRender:false`, single 800ms debounce
+  covering title + body via refs, `beforeunload` guard + flush-on-unmount,
+  Saving/Saved/error pill. Rendered directly from the RSC doc page (the
+  `immediatelyRender:false` flag removes the need for a `dynamic(ssr:false)` wrapper).
+- ✅ `src/app/doc/[id]/page.tsx` — RSC, `await props.params`, `getUser` guard,
+  `maybeSingle()` → `notFound()`; `canEdit = owner` for now (sharing block widens it).
+- ✅ `src/components/editor-toolbar.tsx` (Sonnet) — full toolbar: bold, italic,
+  underline, H1, H2, bullet list, numbered list, lucide icons + aria-labels.
+- ✅ `src/app/page.tsx` (Sonnet) — dashboard RSC. `getUser()` → `redirect("/login")`.
+  **Owned** (`owner_id = me`, ordered by `updated_at`) + **Shared with me** (via
+  `document_shares` nested relation, normalized defensively). Card grid + empty
+  states, "New document" (→ `createDocument`) + sign-out (→ `signOut`) controls.
+
+✅ `pnpm build` passes; `tsc` + `lint` clean (one pre-existing warning in
+`api/chat/route.ts`, untouched).
+
+**Slice gate — ✅ VERIFIED:** login → New document → type → "Saved" → reload
+`/doc/[id]` → content persisted → rename persisted → dashboard listed it under Owned.
+Confirmed via live `pnpm dev` + a real signup account and the server-action log.
+**This also closes the first real exercise of the `documents` INSERT/UPDATE RLS
+paths** (owner create + owner save both succeeded).
 
 ## Dependencies
 
-⬜ **Install before the next block** (needed by the editor, starting now):
-`@tiptap/react @tiptap/starter-kit @tiptap/extension-underline marked isomorphic-dompurify`
-Use pnpm; prefix `C:\nvm4w\nodejs` on PATH if `node`/`pnpm` aren't found, and watch
-the pnpm `allowBuilds` approval prompt.
+✅ Installed: `@tiptap/react @tiptap/starter-kit marked isomorphic-dompurify`
+(`marked`/`isomorphic-dompurify` unused until the import block).
+✅ shadcn `input` + `label` (auth block). `button` + `card` pre-existed.
+❌ Removed: `@tiptap/extension-underline` (StarterKit bundles Underline — duplicate).
 
-✅ shadcn `input` + `label` already added (auth block). `button` + `card` pre-existed.
+> **Editor content styling:** the `@tailwindcss/typography` `@plugin` directive does
+> **not** resolve under this pnpm-strict + Tailwind v4 toolchain (the postcss plugin
+> can't see a package that isn't its own dependency). Instead, editor body styles
+> (h1/h2 sizes, list markers stripped by preflight) live as explicit `.ProseMirror`
+> rules in `globals.css`. No plugin dependency. Verified: `/login` 200, fonts OK.
+>
+> ⚠️ Gotcha hit: `rm -rf .next` evicts cached Google Fonts; they re-download on next
+> `pnpm dev` (needs network to fonts.gstatic.com). Don't clear `.next` offline.

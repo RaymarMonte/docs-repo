@@ -127,4 +127,36 @@
   html {
     @apply font-sans;
   }
+
+  /*
+   * Tiptap content styling. Tailwind's preflight strips default heading sizes
+   * and list markers, so the editor body needs them restored explicitly. Scoped
+   * to `.ProseMirror` (Tiptap's editor root) rather than pulling in the
+   * @tailwindcss/typography plugin, whose `@plugin` directive does not resolve
+   * cleanly under this pnpm-strict + Tailwind v4 toolchain.
+   */
+  .ProseMirror {
+    @apply leading-7;
+  }
+  .ProseMirror:focus {
+    @apply outline-none;
+  }
+  .ProseMirror h1 {
+    @apply mt-6 mb-2 text-3xl font-bold;
+  }
+  .ProseMirror h2 {
+    @apply mt-5 mb-2 text-2xl font-semibold;
+  }
+  .ProseMirror p {
+    @apply my-2;
+  }
+  .ProseMirror ul {
+    @apply my-2 list-disc pl-6;
+  }
+  .ProseMirror ol {
+    @apply my-2 list-decimal pl-6;
+  }
+  .ProseMirror a {
+    @apply underline underline-offset-2;
+  }
 }
